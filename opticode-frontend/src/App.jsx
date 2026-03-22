@@ -5,7 +5,6 @@ import ASTViewer from './components/ASTViewer';
 import OrchestratorPanel from './components/OrchestratorPanel';
 
 function App() {
-  // Global State Management (apiKey removed)
   const [sourceCode, setSourceCode] = useState('');
   const [sourceLang, setSourceLang] = useState('cpp');
   
@@ -16,10 +15,10 @@ function App() {
   return (
     <div style={{ display: 'flex', minHeight: '100vh', fontFamily: 'Arial, sans-serif' }}>
       
-      {/* 1. Sidebar Component */}
+      {/*Sidebar Component */}
       <Sidebar />
 
-      {/* 2. Main Workspace */}
+      {/*Main Workspace */}
       <div style={{ flex: 1, padding: '20px', backgroundColor: '#f8f9fa' }}>
         <h1 style={{ borderBottom: '2px solid #ddd', paddingBottom: '10px' }}>
           Advanced Polyglot Logic Transpiler

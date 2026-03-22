@@ -24,7 +24,6 @@ function Sidebar() {
       
       <hr style={{ borderColor: '#34495e', width: '100%', marginBottom: '30px' }} />
 
-      {/* API Key input has been completely removed! */}
       <div style={{ color: '#2ecc71', fontSize: '0.9rem', fontWeight: 'bold' }}>
         ✓ API Key Secured in Backend
       </div>

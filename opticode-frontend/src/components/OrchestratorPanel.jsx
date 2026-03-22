@@ -13,7 +13,6 @@ function OrchestratorPanel({
   const [customInstructions, setCustomInstructions] = useState('');
 
   const handleOptimize = async () => {
-    // Front-end Validation Guardrails
     if (!sourceCode) return alert("Execution Error: Please paste source code before optimizing.");
     
     setIsLoading(true);
@@ -21,11 +20,9 @@ function OrchestratorPanel({
     setAstData(null); 
 
     try {
-      // Step 1: Request AST Generation
       const parseRes = await parseCode(sourceCode, sourceLang);
       setAstData(parseRes.data.ast_data);
 
-      // Step 2: Request AI Transpilation
       const payload = {
         sourceCode,
         sourceLang,
@@ -41,7 +38,6 @@ function OrchestratorPanel({
       console.error("Orchestrator Failure:", error);
       alert("Pipeline Error: " + (error.response?.data?.error || error.message));
     } finally {
-      // Guarantee the UI unlocks
       setIsLoading(false);
     }
   };
@@ -100,7 +96,7 @@ function OrchestratorPanel({
         <div style={{ 
           marginTop: '25px', 
           padding: '25px', 
-          backgroundColor: '#0d1117', // Professional GitHub Dark theme background
+          backgroundColor: '#0d1117', 
           color: '#c9d1d9', 
           borderRadius: '8px',
           border: '1px solid #30363d',
@@ -111,11 +107,8 @@ function OrchestratorPanel({
           <ReactMarkdown
             remarkPlugins={[remarkGfm]}
             components={{
-              // Style the H3 headers sent by the AI
               h3: ({node, ...props}) => <h3 style={{ color: '#58a6ff', borderBottom: '1px solid #21262d', paddingBottom: '8px', marginTop: '24px' }} {...props} />,
-              // Style the bold text to stand out
               strong: ({node, ...props}) => <strong style={{ color: '#79c0ff', fontWeight: '600' }} {...props} />,
-              // Beautifully format the code blocks with VS Code colors
               code({node, inline, className, children, ...props}) {
                 const match = /language-(\w+)/.exec(className || '')
                 return !inline && match ? (
@@ -130,7 +123,6 @@ function OrchestratorPanel({
                     />
                   </div>
                 ) : (
-                  // Style inline code snippets (like `O(N)`)
                   <code style={{ backgroundColor: '#2d333b', padding: '0.2em 0.4em', borderRadius: '6px', fontSize: '85%', fontFamily: 'monospace' }} {...props}>
                     {children}
                   </code>

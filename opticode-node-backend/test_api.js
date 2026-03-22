@@ -1,4 +1,3 @@
-// test_api.js
 const testParse = async () => {
     console.log("🟡 Testing Parser Endpoint...");
     try {
@@ -28,7 +27,6 @@ const testAI = async () => {
                 sourceCode: "int main() { return 0; }",
                 sourceLang: "cpp",
                 targetLang: "python",
-                // REPLACE THIS WITH YOUR ACTUAL GEMINI KEY TO TEST
                 apiKey: "AIzaSyD-c24zbbiNjQWzTIxcRREnO2bftcITcwg" 
             })
         });
@@ -40,7 +38,6 @@ const testAI = async () => {
     }
 };
 
-// Run the tests sequentially
 const runTests = async () => {
     await testParse();
     await testAI();

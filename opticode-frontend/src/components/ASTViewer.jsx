@@ -16,7 +16,7 @@ function ASTViewer({ astData }) {
         display: 'flex'
       }}>
         
-        {/* CSS Override: This forces the D3-Graphviz SVG to fill the entire container */}
+        
         <style>
           {`
             #graphviz-wrapper {
@@ -44,7 +44,6 @@ function ASTViewer({ astData }) {
               options={{ 
                 zoom: true, 
                 fit: true 
-                // Removed the conflicting string dimensions
               }} 
             />
           </div>

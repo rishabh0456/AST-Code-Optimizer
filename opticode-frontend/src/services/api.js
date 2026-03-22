@@ -1,6 +1,5 @@
 import axios from 'axios';
 
-// Pointing to your Express Backend
 const API_BASE = 'http://localhost:3000/api/v1/opticode';
 
 export const parseCode = async (sourceCode, language) => {

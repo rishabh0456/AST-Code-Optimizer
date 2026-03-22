@@ -7,26 +7,21 @@ class AIOrchestrator:
     analysis, complexity comparison, and multi-language optimization.
     """
     def __init__(self):
-        # Fetch the key securely from environment variables
         api_key = os.environ.get("GEMINI_API_KEY")
         
         if not api_key:
             raise ValueError("GEMINI_API_KEY environment variable is missing.")
 
-        # Configure the API with your secure key
         genai.configure(api_key=api_key)
         
-        # 1. Ask Google what models your key actually owns
         available_models = []
         try:
             for m in genai.list_models():
                 if 'generateContent' in m.supported_generation_methods:
                     available_models.append(m.name.replace('models/', ''))
         except Exception:
-            # Fallback if listing fails
             available_models = ['gemini-1.5-flash']
 
-        # 2. Dynamically pick the best available model (Priority: Gemini 3/2.5/1.5)
         if 'gemini-3.1-pro' in available_models:
             chosen_model = 'gemini-3.1-pro'
         elif 'gemini-3-flash' in available_models:

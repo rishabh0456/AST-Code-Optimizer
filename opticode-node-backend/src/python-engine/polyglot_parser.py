@@ -10,7 +10,6 @@ class PolyglotEngine:
     Abstract Syntax Trees for multiple programming languages.
     """
     def __init__(self):
-        # Initialize the C-bindings for all 4 languages
         self.languages = {
             "python": Language(tspython.language()),
             "cpp": Language(tscpp.language()),
@@ -27,22 +26,16 @@ class PolyglotEngine:
         if language_choice not in self.languages:
             raise ValueError(f"Language '{language_choice}' is not supported yet.")
 
-        # Switch the parser's brain to the selected language
         self.parser.language = self.languages[language_choice]
         
-        # Tree-sitter requires raw bytes, not standard strings
         source_bytes = bytes(source_code, "utf8")
         tree = self.parser.parse(source_bytes)
         
         return tree.root_node
 
-# ==========================================
-# TEST: Prove the engine speaks 4 languages
-# ==========================================
 if __name__ == "__main__":
     engine = PolyglotEngine()
 
-    # 1. Test C++ (DSA Focus)
     cpp_code = """
     int main() {
         for(int i=0; i<n; i++) {

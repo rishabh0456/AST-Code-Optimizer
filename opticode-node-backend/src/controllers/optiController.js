@@ -1,7 +1,6 @@
 const { spawn } = require('child_process');
 const path = require('path');
 
-// Helper function to execute Python securely
 const runPythonScript = (scriptName, data) => {
     return new Promise((resolve, reject) => {
         const scriptPath = path.join(__dirname, '../python-engine', scriptName);
@@ -36,7 +35,7 @@ const runPythonScript = (scriptName, data) => {
     });
 };
 
-// 1. Parse Source Code Route
+// Parse Source Code Route
 const parseSourceCode = async (req, res) => {
     try {
         const { sourceCode, language } = req.body;
@@ -62,7 +61,7 @@ const parseSourceCode = async (req, res) => {
     }
 };
 
-// 2. Transpile Code Route (API Key removed!)
+// Transpile Code Route 
 const transpileCode = async (req, res) => {
     try {
         const { sourceCode, sourceLang, targetLang, customInstructions } = req.body;
@@ -99,7 +98,6 @@ const transpileCode = async (req, res) => {
     }
 };
 
-// EXPORTS (If this is missing, the server crashes!)
 module.exports = {
     parseSourceCode,
     transpileCode
