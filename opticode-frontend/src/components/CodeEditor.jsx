@@ -1,39 +1,92 @@
-import React from 'react';
+import React, { useRef } from 'react';
+import { Upload } from 'lucide-react';
+
+const LANGUAGES = [
+  { value: 'cpp',        label: 'C++' },
+  { value: 'java',       label: 'Java' },
+  { value: 'python',     label: 'Python' },
+  { value: 'javascript', label: 'JavaScript' },
+];
 
 function CodeEditor({ sourceCode, setSourceCode, sourceLang, setSourceLang }) {
+  const fileInputRef = useRef(null);
+
+  const handleFileUpload = (e) => {
+    const file = e.target.files[0];
+    if (!file) return;
+
+    const extension = file.name.split('.').pop().toLowerCase();
+    const extToLang = {
+      cpp: 'cpp', c: 'cpp', cc: 'cpp', h: 'cpp', hpp: 'cpp',
+      java: 'java',
+      py: 'python',
+      js: 'javascript', jsx: 'javascript', ts: 'javascript', tsx: 'javascript'
+    };
+
+    if (extToLang[extension]) {
+      setSourceLang(extToLang[extension]);
+    }
+
+    const reader = new FileReader();
+    reader.onload = (event) => {
+      setSourceCode(event.target.result);
+    };
+    reader.readAsText(file);
+    
+    e.target.value = null; // Clear so same file can be selected again
+  };
+
   return (
-    <div style={{ border: '1px solid #ccc', padding: '15px', borderRadius: '8px', backgroundColor: 'white', height: '100%' }}>
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '10px' }}>
-        <h3 style={{ margin: 0 }}>Source Code</h3>
-        <select 
-          value={sourceLang} 
-          onChange={(e) => setSourceLang(e.target.value)}
-          style={{ padding: '6px', borderRadius: '4px', border: '1px solid #ccc' }}
-        >
-          <option value="cpp">C++</option>
-          <option value="java">Java</option>
-          <option value="python">Python</option>
-          <option value="javascript">JavaScript</option>
-        </select>
+    <div className="card" style={{ minHeight: '420px' }}>
+      {/* Card Header */}
+      <div className="card-header">
+        <span className="card-title">Source Code</span>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+          <button 
+            className="lang-select" 
+            onClick={() => fileInputRef.current.click()} 
+            style={{ display: 'inline-flex', alignItems: 'center', gap: '6px' }}
+            title="Upload a code file"
+          >
+            <Upload size={14} />
+            <span>Upload</span>
+          </button>
+          
+          <select
+            id="source-lang-select"
+            className="lang-select"
+            value={sourceLang}
+            onChange={(e) => setSourceLang(e.target.value)}
+            aria-label="Select source language"
+          >
+            {LANGUAGES.map((l) => (
+              <option key={l.value} value={l.value}>{l.label}</option>
+            ))}
+          </select>
+        </div>
+
+        {/* Hidden File Input */}
+        <input 
+          type="file" 
+          ref={fileInputRef} 
+          style={{ display: 'none' }} 
+          onChange={handleFileUpload}
+          accept=".cpp,.c,.cc,.h,.hpp,.java,.py,.js,.jsx,.ts,.tsx"
+        />
       </div>
-      <textarea
-        value={sourceCode}
-        onChange={(e) => setSourceCode(e.target.value)}
-        style={{ 
-          width: '100%', 
-          height: '350px', 
-          fontFamily: 'monospace', 
-          padding: '12px', 
-          boxSizing: 'border-box',
-          resize: 'vertical',
-          backgroundColor: '#2d2d2d',
-          color: '#e0e0e0',
-          border: 'none',
-          borderRadius: '4px',
-          fontSize: '14px'
-        }}
-        placeholder="Paste your original code here..."
-      />
+
+      {/* Card Body — Textarea */}
+      <div className="card-body">
+        <textarea
+          id="source-code-input"
+          className="code-textarea"
+          value={sourceCode}
+          onChange={(e) => setSourceCode(e.target.value)}
+          placeholder="// Paste your source code here..."
+          spellCheck={false}
+          autoComplete="off"
+        />
+      </div>
     </div>
   );
 }

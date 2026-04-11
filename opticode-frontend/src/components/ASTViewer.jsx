@@ -3,53 +3,44 @@ import { Graphviz } from 'graphviz-react';
 
 function ASTViewer({ astData }) {
   return (
-    <div style={{ border: '1px solid #ccc', padding: '15px', borderRadius: '8px', backgroundColor: 'white', height: '100%', display: 'flex', flexDirection: 'column' }}>
-      <h3 style={{ margin: '0 0 10px 0' }}>Logic Tree (AST)</h3>
-      
-      <div style={{ 
-        flex: 1, 
-        minHeight: '400px', 
-        border: '1px dashed #aaa', 
-        backgroundColor: '#fafafa',
-        borderRadius: '4px',
-        overflow: 'hidden',
-        display: 'flex'
-      }}>
-        
-        
-        <style>
-          {`
-            #graphviz-wrapper {
-              width: 100%;
-              height: 100%;
-              display: flex;
-              align-items: center;
-              justify-content: center;
-            }
-            #graphviz-wrapper > div {
-              width: 100%;
-              height: 100%;
-            }
-            #graphviz-wrapper svg {
-              width: 100% !important;
-              height: 100% !important;
-            }
-          `}
-        </style>
+    <div className="card" style={{ minHeight: '420px' }}>
+      {/* Card Header */}
+      <div className="card-header">
+        <span className="card-title">Logic Tree (AST)</span>
+        {astData && (
+          <span
+            style={{
+              fontSize: '11px',
+              color: 'var(--green)',
+              fontWeight: 600,
+              letterSpacing: '0.04em',
+            }}
+          >
+            ● Generated
+          </span>
+        )}
+      </div>
 
+      {/* Card Body */}
+      <div className="card-body">
         {astData ? (
-          <div id="graphviz-wrapper">
-            <Graphviz 
-              dot={astData} 
-              options={{ 
-                zoom: true, 
-                fit: true 
-              }} 
-            />
+          <div className="ast-graph-wrapper">
+            <style>{`
+              #graphviz-wrapper-inner { width: 100%; height: 100%; display: flex; align-items: center; justify-content: center; }
+              #graphviz-wrapper-inner > div { width: 100%; height: 100%; }
+              #graphviz-wrapper-inner svg { width: 100% !important; height: 100% !important; }
+            `}</style>
+            <div id="graphviz-wrapper-inner">
+              <Graphviz
+                dot={astData}
+                options={{ zoom: true, fit: true }}
+              />
+            </div>
           </div>
         ) : (
-          <div style={{ width: '100%', height: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-            <p style={{ color: '#888', fontStyle: 'italic' }}>Run optimization to view the AST structure.</p>
+          <div className="ast-empty">
+            <div className="ast-empty-icon">🌐</div>
+            <p className="ast-empty-text">Run optimization to view the AST structure</p>
           </div>
         )}
       </div>

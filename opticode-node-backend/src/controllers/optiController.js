@@ -5,7 +5,9 @@ const runPythonScript = (scriptName, data) => {
     return new Promise((resolve, reject) => {
         const scriptPath = path.join(__dirname, '../python-engine', scriptName);
         
-        const pythonProcess = spawn('python', [scriptPath]);
+        const pythonProcess = spawn('python', [scriptPath], {
+            env: { ...process.env, PYTHONIOENCODING: 'utf-8' }
+        });
 
         let outputData = '';
         let errorData = '';
@@ -98,7 +100,137 @@ const transpileCode = async (req, res) => {
     }
 };
 
+// Code Review Route
+const reviewCode = async (req, res) => {
+    try {
+        const { sourceCode, language } = req.body;
+
+        if (!sourceCode || !language) {
+            return res.status(400).json({ 
+                error: 'Missing required parameters: sourceCode and language.' 
+            });
+        }
+
+        const pyData = { source_code: sourceCode, language: language };
+        const result = await runPythonScript('run_review.py', pyData);
+
+        if (result.status === 'error') {
+            return res.status(500).json({ error: result.error_message, raw: result.raw_response });
+        }
+
+        res.status(200).json(result.review_data);
+
+    } catch (error) {
+        res.status(500).json({ 
+            error: 'AI Code Review failed due to a server error.', 
+            details: error.message 
+        });
+    }
+};
+
+
+// Logic Flow Graph Route (Simplified AST)
+const getLogicFlow = async (req, res) => {
+    try {
+        const { sourceCode, language } = req.body;
+
+        if (!sourceCode || !language) {
+            return res.status(400).json({ 
+                error: 'Missing required parameters: sourceCode and language.' 
+            });
+        }
+
+        const pyData = { source_code: sourceCode, language: language };
+        const result = await runPythonScript('run_logic_flow.py', pyData);
+
+        if (result.status === 'error') {
+            return res.status(500).json({ error: result.error_message });
+        }
+
+        res.status(200).json({ 
+            message: 'Logic flow generated successfully.',
+            logic_flow_dot: result.logic_flow_dot 
+        });
+
+    } catch (error) {
+        res.status(500).json({ 
+            error: 'Logic flow generation failed.', 
+            details: error.message 
+        });
+    }
+};
+
+// Fix All Issues Route
+const fixCode = async (req, res) => {
+    try {
+        const { sourceCode, language, findingsSummary } = req.body;
+
+        if (!sourceCode || !language) {
+            return res.status(400).json({ 
+                error: 'Missing required parameters: sourceCode and language.' 
+            });
+        }
+
+        const pyData = { 
+            source_code: sourceCode, 
+            language: language,
+            findings_summary: findingsSummary || ""
+        };
+        const result = await runPythonScript('run_fix.py', pyData);
+
+        if (result.status === 'error') {
+            return res.status(500).json({ error: result.error_message });
+        }
+
+        res.status(200).json({ 
+            message: 'Code fixed successfully.',
+            fixed_code: result.fixed_code 
+        });
+
+    } catch (error) {
+        res.status(500).json({ 
+            error: 'AI Fix failed.', 
+            details: error.message 
+        });
+    }
+};
+
+// Algorithm Analysis Route
+const analyzeAlgorithm = async (req, res) => {
+    try {
+        const { sourceCode, language } = req.body;
+
+        if (!sourceCode || !language) {
+            return res.status(400).json({ 
+                error: 'Missing required parameters: sourceCode and language.' 
+            });
+        }
+
+        const pyData = { source_code: sourceCode, language: language };
+        const result = await runPythonScript('run_analyze.py', pyData);
+
+        if (result.status === 'error') {
+            return res.status(500).json({ error: result.error_message });
+        }
+
+        res.status(200).json({ 
+            message: 'Algorithm analysis complete.',
+            analysis: result.analysis_markdown 
+        });
+
+    } catch (error) {
+        res.status(500).json({ 
+            error: 'Algorithm analysis failed.', 
+            details: error.message 
+        });
+    }
+};
+
 module.exports = {
     parseSourceCode,
-    transpileCode
+    transpileCode,
+    reviewCode,
+    getLogicFlow,
+    fixCode,
+    analyzeAlgorithm
 };

@@ -5,133 +5,154 @@ import remarkGfm from 'remark-gfm';
 import { Prism as SyntaxHighlighter } from 'react-syntax-highlighter';
 import { vscDarkPlus } from 'react-syntax-highlighter/dist/esm/styles/prism';
 
-function OrchestratorPanel({ 
-  sourceCode, sourceLang, apiKey, setAstData, 
-  optimizedResult, setOptimizedResult, isLoading, setIsLoading 
+const TARGET_LANGUAGES = [
+  { value: 'cpp',        label: 'C++' },
+  { value: 'java',       label: 'Java' },
+  { value: 'python',     label: 'Python' },
+  { value: 'javascript', label: 'JavaScript' },
+];
+
+function OrchestratorPanel({
+  sourceCode, sourceLang, apiKey, setAstData,
+  optimizedResult, setOptimizedResult, isLoading, setIsLoading
 }) {
-  const [targetLang, setTargetLang] = useState('python');
+  const [targetLang, setTargetLang]               = useState('python');
   const [customInstructions, setCustomInstructions] = useState('');
 
   const handleOptimize = async () => {
-    if (!sourceCode) return alert("Execution Error: Please paste source code before optimizing.");
-    
+    if (!sourceCode) {
+      alert('Please paste source code before optimizing.');
+      return;
+    }
+
     setIsLoading(true);
-    setOptimizedResult(''); 
-    setAstData(null); 
+    setOptimizedResult('');
+    setAstData(null);
 
     try {
       const parseRes = await parseCode(sourceCode, sourceLang);
       setAstData(parseRes.data.ast_data);
 
-      const payload = {
-        sourceCode,
-        sourceLang,
-        targetLang,
-        customInstructions,
-        apiKey
-      };
-      
-      const aiRes = await transpileCode(payload);
+      const payload = { sourceCode, sourceLang, targetLang, customInstructions, apiKey };
+      const aiRes   = await transpileCode(payload);
       setOptimizedResult(aiRes.data.optimized_result);
 
     } catch (error) {
-      console.error("Orchestrator Failure:", error);
-      alert("Pipeline Error: " + (error.response?.data?.error || error.message));
+      console.error('Orchestrator Failure:', error);
+      alert('Pipeline Error: ' + (error.response?.data?.error || error.message));
     } finally {
       setIsLoading(false);
     }
   };
 
   return (
-    <div style={{ border: '1px solid #ccc', padding: '20px', borderRadius: '8px', backgroundColor: 'white', boxShadow: '0 4px 6px rgba(0,0,0,0.05)' }}>
-      <h3 style={{ margin: '0 0 15px 0', color: '#2c3e50' }}>🤖 Dynamic Optimization & Transpilation</h3>
-      
-      <div style={{ display: 'flex', gap: '20px', marginBottom: '20px' }}>
-        <div style={{ flex: 1 }}>
-          <label style={{ display: 'block', marginBottom: '8px', fontWeight: 'bold', fontSize: '14px' }}>Target Language:</label>
-          <select 
-            value={targetLang} 
+    <div className="card">
+      {/* Card Header */}
+      <div className="card-header">
+        <span className="card-title">AI Orchestration</span>
+        <span style={{ fontSize: '12px', color: 'var(--text-muted)' }}>
+          Powered by Gemini
+        </span>
+      </div>
+
+      {/* Controls Row */}
+      <div className="orch-controls">
+        {/* Target Language */}
+        <div>
+          <label className="field-label" htmlFor="target-lang-select">
+            Target Language
+          </label>
+          <select
+            id="target-lang-select"
+            className="lang-select"
+            value={targetLang}
             onChange={(e) => setTargetLang(e.target.value)}
-            style={{ width: '100%', padding: '10px', borderRadius: '4px', border: '1px solid #ccc' }}
+            style={{ width: '100%', borderRadius: '6px', padding: '8px 12px' }}
+            aria-label="Target language"
           >
-            <option value="cpp">C++</option>
-            <option value="java">Java</option>
-            <option value="python">Python</option>
-            <option value="javascript">JavaScript</option>
+            {TARGET_LANGUAGES.map((l) => (
+              <option key={l.value} value={l.value}>{l.label}</option>
+            ))}
           </select>
         </div>
-        
-        <div style={{ flex: 2 }}>
-          <label style={{ display: 'block', marginBottom: '8px', fontWeight: 'bold', fontSize: '14px' }}>Custom Instructions (Optional):</label>
-          <input 
-            type="text" 
-            value={customInstructions} 
-            onChange={(e) => setCustomInstructions(e.target.value)} 
-            placeholder="e.g., 'Optimize for O(N) time complexity'..." 
-            style={{ width: '100%', padding: '10px', borderRadius: '4px', border: '1px solid #ccc', boxSizing: 'border-box' }} 
+
+        {/* Custom Instructions */}
+        <div>
+          <label className="field-label" htmlFor="custom-instructions">
+            Custom Instructions <span style={{ fontWeight: 400, textTransform: 'none', letterSpacing: 0 }}>(optional)</span>
+          </label>
+          <input
+            id="custom-instructions"
+            type="text"
+            className="text-input"
+            value={customInstructions}
+            onChange={(e) => setCustomInstructions(e.target.value)}
+            placeholder="e.g. Optimize for O(N) time complexity..."
+            aria-label="Custom instructions"
           />
         </div>
       </div>
 
-      <button 
-        onClick={handleOptimize} 
-        disabled={isLoading} 
-        style={{ 
-          padding: '14px 24px', 
-          backgroundColor: isLoading ? '#7f8c8d' : '#27ae60', 
-          color: 'white', 
-          border: 'none', 
-          borderRadius: '6px',
-          cursor: isLoading ? 'not-allowed' : 'pointer', 
-          fontSize: '16px',
-          fontWeight: 'bold',
-          transition: 'background-color 0.3s'
-        }}
-      >
-        {isLoading ? '⏳ Compiling Logic Tree & Refactoring...' : `✨ Optimize and Convert to ${targetLang.toUpperCase()}`}
-      </button>
+      {/* CTA Row */}
+      <div className="orch-cta">
+        <button
+          id="optimize-btn"
+          className="btn-primary"
+          onClick={handleOptimize}
+          disabled={isLoading}
+        >
+          {isLoading ? (
+            <span className="btn-loading-text">
+              <span className="spinner" />
+              Compiling &amp; Refactoring...
+            </span>
+          ) : (
+            <>✨ Optimize &amp; Convert to {TARGET_LANGUAGES.find(l => l.value === targetLang)?.label}</>
+          )}
+        </button>
+      </div>
 
-      {/* Upgraded Result Output Area */}
+      {/* Result Output */}
       {optimizedResult && (
-        <div style={{ 
-          marginTop: '25px', 
-          padding: '25px', 
-          backgroundColor: '#0d1117', 
-          color: '#c9d1d9', 
-          borderRadius: '8px',
-          border: '1px solid #30363d',
-          fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif',
-          lineHeight: '1.6',
-          boxShadow: '0 10px 15px -3px rgba(0, 0, 0, 0.1)'
-        }}>
-          <ReactMarkdown
-            remarkPlugins={[remarkGfm]}
-            components={{
-              h3: ({node, ...props}) => <h3 style={{ color: '#58a6ff', borderBottom: '1px solid #21262d', paddingBottom: '8px', marginTop: '24px' }} {...props} />,
-              strong: ({node, ...props}) => <strong style={{ color: '#79c0ff', fontWeight: '600' }} {...props} />,
-              code({node, inline, className, children, ...props}) {
-                const match = /language-(\w+)/.exec(className || '')
-                return !inline && match ? (
-                  <div style={{ borderRadius: '6px', overflow: 'hidden', marginTop: '12px', marginBottom: '12px' }}>
-                    <SyntaxHighlighter
-                      children={String(children).replace(/\n$/, '')}
-                      style={vscDarkPlus}
-                      language={match[1]}
-                      PreTag="div"
-                      customStyle={{ margin: 0, padding: '16px' }}
-                      {...props}
-                    />
-                  </div>
-                ) : (
-                  <code style={{ backgroundColor: '#2d333b', padding: '0.2em 0.4em', borderRadius: '6px', fontSize: '85%', fontFamily: 'monospace' }} {...props}>
-                    {children}
-                  </code>
-                )
-              }
-            }}
-          >
-            {optimizedResult}
-          </ReactMarkdown>
+        <div className="result-area">
+          <div className="result-header">
+            <span className="result-label">Output</span>
+            <span style={{ fontSize: '11px', color: 'var(--green)', fontWeight: 600 }}>
+              ● Complete
+            </span>
+          </div>
+          <div className="result-body">
+            <ReactMarkdown
+              remarkPlugins={[remarkGfm]}
+              components={{
+                h3: ({ node, ...props }) => (
+                  <h3 className="result-h3" {...props} />
+                ),
+                strong: ({ node, ...props }) => (
+                  <strong {...props} />
+                ),
+                code({ node, inline, className, children, ...props }) {
+                  const match = /language-(\w+)/.exec(className || '');
+                  return !inline && match ? (
+                    <div style={{ borderRadius: '8px', overflow: 'hidden', margin: '12px 0' }}>
+                      <SyntaxHighlighter
+                        children={String(children).replace(/\n$/, '')}
+                        style={vscDarkPlus}
+                        language={match[1]}
+                        PreTag="div"
+                        customStyle={{ margin: 0, padding: '16px', fontSize: '13px', fontFamily: 'JetBrains Mono, monospace' }}
+                        {...props}
+                      />
+                    </div>
+                  ) : (
+                    <code {...props}>{children}</code>
+                  );
+                },
+              }}
+            >
+              {optimizedResult}
+            </ReactMarkdown>
+          </div>
         </div>
       )}
     </div>
